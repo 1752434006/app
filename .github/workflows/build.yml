@@ -1,0 +1,39 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉取你的代码到构建环境
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. 设置 Java 环境（Android 构建需要）
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3. 为 gradlew 添加执行权限（重要！）
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # 4. 构建 Debug 版 APK
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      # 5. 将生成的 APK 上传为“制品”，供你下载
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
